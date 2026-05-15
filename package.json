@@ -1,0 +1,11 @@
+{
+  "name": "summit-data-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "lint": "node scripts/lint.js",
+    "dev": "node scripts/server.js"
+  }
+}
