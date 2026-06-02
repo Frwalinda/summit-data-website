@@ -59,7 +59,14 @@ export async function onRequest(context) {
 }
 
 function validateContactPayload(payload) {
+  const requestType = cleanInput(payload.request_type);
+
+  if (requestType === "request_demo") {
+    return validateRequestDemoPayload(payload);
+  }
+
   const data = {
+    requestType: "contact",
     name: cleanInput(payload.name),
     organisation: cleanInput(payload.organisation),
     email: cleanInput(payload.email),
@@ -79,7 +86,56 @@ function validateContactPayload(payload) {
   return { ok: true, data };
 }
 
+function validateRequestDemoPayload(payload) {
+  const firstName = cleanInput(payload.first_name);
+  const lastName = cleanInput(payload.last_name);
+  const data = {
+    requestType: "request_demo",
+    firstName,
+    lastName,
+    name: [firstName, lastName].filter(Boolean).join(" "),
+    organisation: cleanInput(payload.organisation),
+    email: cleanInput(payload.email),
+    phone: cleanInput(payload.phone),
+    location: cleanInput(payload.location),
+    industry: cleanInput(payload.industry),
+    bestTimeToCall: cleanInput(payload.best_time_to_call),
+    solutionInterest: cleanInput(payload.solution_interest),
+    message: cleanInput(payload.message),
+    subject: cleanInput(payload.subject) || "Request Demo - Summit Data Ltd Website",
+    honey: cleanInput(payload._honey)
+  };
+
+  if (data.honey) return { ok: true, data: null };
+  if (!data.firstName || !data.email || !data.phone) {
+    return { ok: false, message: "Please complete your first name, email, and phone number." };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    return { ok: false, message: "Please enter a valid email address." };
+  }
+
+  return { ok: true, data };
+}
+
 function renderEmailText(data) {
+  if (data.requestType === "request_demo") {
+    return [
+      "Request Type: Request demo or consultation",
+      `First Name: ${data.firstName}`,
+      `Last Name: ${data.lastName || "Not provided"}`,
+      `Organisation: ${data.organisation || "Not provided"}`,
+      `Email: ${data.email}`,
+      `Phone: ${data.phone}`,
+      `Country / City: ${data.location || "Not provided"}`,
+      `Industry: ${data.industry || "Not provided"}`,
+      `Best time to call: ${data.bestTimeToCall || "Not provided"}`,
+      `Solution of interest: ${data.solutionInterest || "Not provided"}`,
+      "",
+      "Message / Brief requirement:",
+      data.message || "Not provided"
+    ].join("\n");
+  }
+
   return [
     `Name: ${data.name}`,
     `Organisation: ${data.organisation || "Not provided"}`,

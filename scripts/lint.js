@@ -5,20 +5,28 @@ const root = process.cwd();
 const requiredFiles = [
   "dist/index.html",
   "dist/about.html",
-  "dist/services.html",
-  "dist/projects.html",
+  "dist/solutions.html",
+  "dist/case-studies.html",
   "dist/industries.html",
-  "dist/approach.html",
   "dist/contact.html",
+  "dist/request-demo.html",
   "dist/assets/styles.css",
   "dist/assets/main.js"
 ];
+
+const legacyFiles = ["dist/services.html", "dist/projects.html"];
 
 const failures = [];
 
 for (const file of requiredFiles) {
   if (!fs.existsSync(path.join(root, file))) {
     failures.push(`Missing ${file}`);
+  }
+}
+
+for (const file of legacyFiles) {
+  if (!fs.existsSync(path.join(root, file))) {
+    failures.push(`Missing legacy redirect ${file}`);
   }
 }
 
@@ -32,7 +40,8 @@ const bannedPhrases = [
   ["loan", "app"],
   ["recover", "debts"],
   ["credit", "provider"],
-  ["debt", "collector"]
+  ["debt", "collector"],
+  ["generic", "it", "company"]
 ].map((parts) => parts.join(" "));
 
 for (const file of scanFiles) {
